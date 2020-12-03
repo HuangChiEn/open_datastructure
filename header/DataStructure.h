@@ -58,6 +58,7 @@ class Smart_array{  // very basic DS, we can fully enter the low-level of this D
 		
 		// Utility function
 		bool chk_bnd(const int &);
+		void shrink_arr();
 	
 	public:
 		// Constructor -
@@ -75,7 +76,8 @@ class Smart_array{  // very basic DS, we can fully enter the low-level of this D
 		
 		// Operation -
 		void add(T);
-		void remove(int idx);
+		void remove_bk();
+		void remove(const int&);
 		
 };
 
@@ -87,6 +89,7 @@ class Smart_stack{
 
 	public:
 		Smart_stack():arr(), curr_ptr{-1}{};
+		Smart_stack(T val):arr(val), curr_ptr{0}{};
 
 		// "copy return" to ensure the security.
 		T top(){ return arr[curr_ptr]; }
@@ -104,6 +107,13 @@ class Smart_stack{
 
 };
 
+/*
+*	 [0]  ->  [1]  ->  [2]  ->  [3]  -> ...
+*     9        7       13      curr_ptr. -> pop (9, 7)
+*
+*    [0]  ->  [1]  ->  [2]  ->  [3]  -> ...
+*    13    curr_ptr
+*/
 template<typename T>
 class Smart_queue{
 	private:
@@ -113,8 +123,10 @@ class Smart_queue{
 	public:
 		Smart_queue():arr(), curr_ptr{-1}{};
 
+		Smart_queue(T val):arr(val), curr_ptr{0}{};
+
 		// "copy return" to ensure the security.
-		T top(){ return arr[curr_ptr]; }
+		T top(){ return arr[0]; }
 
 		void push(T val){
 			arr.add(val);
@@ -122,13 +134,16 @@ class Smart_queue{
 		}
 
 		T pop(){
-			T& tmp_val = top();
-			arr.remove(curr_ptr--);
+			T tmp_val = top();
+			arr.remove(0);
+			--curr_ptr;
 			return tmp_val;
 		}
 
-
+		bool is_empty(){ return (curr_ptr == -1) ? true : false; }
 };
+
+
 
 // < Array type DS alias
 template<class T>
@@ -216,7 +231,7 @@ class Binary_search_tree{
 		Node* find_parent(T);
 		void add_child(Node*, Node*);
 		void ord_recur(Order, Node*);
-		void prnt_spac_with_depth();
+		void prnt_spac_with_depth(); 
 
 	public:
 		// Constructor -
@@ -236,3 +251,10 @@ class Binary_search_tree{
 template<class T>
 using BST = Binary_search_tree<T>;
 
+
+
+
+/* TODO : 
+* 1. 
+* 2.
+*/

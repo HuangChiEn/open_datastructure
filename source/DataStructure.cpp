@@ -50,6 +50,14 @@ Smart_array<T>::Smart_array(T val):arr{nullptr}, ptr{0}, siz{4}{
 template<typename T>
 bool Smart_array<T>::chk_bnd(const int &idx){ return (idx <= ptr && idx >=0) ? true : false; }
 
+template<typename T>
+void Smart_array<T>::shrink_arr(){
+    T *tmp = arr;
+    arr = new T[siz/=2];
+    for(int idx=0; idx < ptr; ++idx)
+        arr[idx] = tmp[idx];
+}
+
 // Getter for the assign operator - 
 template<typename T>
 T* Smart_array<T>::get_arr(){ return this->arr; }
@@ -80,6 +88,7 @@ void Smart_array<T>::operator=(Smart_array<T>& tmp_arr) {
 // Operation -
 template<typename T>
 void Smart_array<T>::add(T val){
+    // increase size.
     if(ptr+1 >= siz/2){
         T* tmp = arr;
         arr = new T[ siz*=2 ];  // try-catch, return false.
@@ -90,15 +99,20 @@ void Smart_array<T>::add(T val){
 }
 
 template<typename T>
-void Smart_array<T>::remove(int idx){
-    if(chk_bnd(idx)){
-        if(ptr-1 <= siz/4){
-            T *tmp = arr;
-            arr = new T[siz/=2];
-            --ptr;
-            for(int idx=0; idx < ptr; ++idx)
-                arr[idx] = tmp[idx];
-        }
+void Smart_array<T>::remove_bk(){
+    // decrease size.
+    if(ptr-1 <= siz/4)
+        shrink_arr();
+    --ptr;
+}
+
+template<typename T>
+void Smart_array<T>::remove(const int& rmv_idx){
+    if(chk_bnd(rmv_idx)){
+        if(ptr-1 <= siz/4)
+            shrink_arr();
+        for(int idx=rmv_idx; idx < ptr; ++idx)
+            arr[idx] = arr[idx+1];
         --ptr;
     }
 }
@@ -295,12 +309,19 @@ void Binary_search_tree<T>::order_traversal(Order ord){ ord_recur(ord, this->roo
 
 template<typename T>
 void Binary_search_tree<T>::BF_print(){
-    Queue<Node*> nd_que(this->root);  
-    for(Node* tmp_ptr = nd_que.pop() ; tmp_ptr != nullptr ; tmp_ptr = nd_que.pop()){
-        cout << tmp_ptr->val;
-        nd_que.push(tmp_ptr->left);
-        nd_que.push(tmp_ptr->right);
-    }
+    Smart_queue<Node*> nd_que(this->root);
+
+    do{
+        Node* tmp_ptr = nd_que.pop();
+        cout << tmp_ptr->val << " ";
+        if(tmp_ptr->left != nullptr){
+            nd_que.push(tmp_ptr->left);
+        }
+            
+        if(tmp_ptr->right != nullptr){
+            nd_que.push(tmp_ptr->right);
+        }
+    }while(!nd_que.is_empty());
 }
 
 // Self-def -

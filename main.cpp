@@ -10,17 +10,20 @@ using std::cout;
 #define MAXLEN 5
 #define DIGRNG 100
 
+typedef int DATATYPE;
+
 int main(){
 	
 	srand(time(NULL));
+	
 	BST<int> tree;
 	for(int idx=0 ; idx < MAXLEN ; ++idx){
 		int tmp = rand()%DIGRNG + 1;
 		cout << " tmp : " << tmp << " ; ";
 		tree.insert(tmp);
 	}
-
-	tree.order_traversal(tree.Order::in_order);	
+	tree.BF_print();
+	
 	return 0;
 }
 
