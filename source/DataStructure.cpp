@@ -119,6 +119,62 @@ void Smart_array<T>::remove(const int& rmv_idx){
 // end of Smart_Array @
 
 
+// @ Smart_Stack =
+//  Constructor -
+template<typename T>
+Smart_stack<T>::Smart_stack():arr(), curr_ptr{-1}{};
+
+template<typename T>
+Smart_stack<T>::Smart_stack(T val):arr(val), curr_ptr{-1}{};
+
+// Operation -
+template<typename T>
+T Smart_stack<T>::top(){ return arr[curr_ptr]; }
+
+template<typename T>
+void Smart_stack<T>::push(T val){
+    arr.add(val);
+	++curr_ptr;
+}
+
+template<typename T>
+T Smart_stack<T>::pop(){
+    T& tmp_val = top();
+    arr.remove(curr_ptr--);
+    return tmp_val;
+}
+// end of Smart_Stack @
+
+
+// @ Smart_Queue =
+//  Constructor -
+template<typename T>
+Smart_queue<T>::Smart_queue():arr(), curr_ptr{-1}{};
+
+template<typename T>
+Smart_queue<T>::Smart_queue(T val):arr(val), curr_ptr{0}{};
+
+// Operation -
+template<typename T>
+T Smart_queue<T>::top(){ return arr[0]; }  // "copy return" to ensure the security.
+
+template<typename T>
+void Smart_queue<T>::push(T val){
+    arr.add(val);
+    ++curr_ptr;
+}
+
+template<typename T>
+T Smart_queue<T>::pop(){
+    T tmp_val = top();
+    arr.remove(0);
+    --curr_ptr;
+    return tmp_val;
+}
+
+template<typename T>
+bool Smart_queue<T>::is_empty(){ return (curr_ptr == -1) ? true : false; }
+// end of Smart_Queue @
 
 
 // List type DS :
@@ -199,7 +255,7 @@ void Double_linked_list<T>::remove_value(T val){
 
     // check the value in the list.  
     if(prev_nd == nullptr){
-        cout << "Value no find.";
+        cout << "Value not found.";
         return;
     }
 
@@ -210,6 +266,29 @@ void Double_linked_list<T>::remove_value(T val){
     // delete the node.
     safe_del_ptr<Node>(del_nd_ptr);
     --siz;
+}
+
+// Search -
+template<typename T>
+bool Double_linked_list<T>::find_val(T val){
+    Node* tmp_ptr = this->dummy.next;
+    for(int idx=0 ; idx < siz ; ++idx){
+        if(tmp_ptr->val == val)
+            return true;
+        tmp_ptr = tmp_ptr->next;
+    }
+    return false;
+}
+
+template<typename T>
+int Double_linked_list<T>::find_idx(T val){
+    Node* tmp_ptr = this->dummy.next;
+    for(int idx=0 ; idx < siz ; ++idx){
+        if(tmp_ptr->val == val)
+            return idx;
+        tmp_ptr = tmp_ptr->next;
+    }
+    return -1;
 }
 
 //  View -
@@ -311,17 +390,16 @@ template<typename T>
 void Binary_search_tree<T>::BF_print(){
     Smart_queue<Node*> nd_que(this->root);
 
-    do{
+    while(!nd_que.is_empty()){
         Node* tmp_ptr = nd_que.pop();
+        if(tmp_ptr == nullptr)
+            continue;
+
         cout << tmp_ptr->val << " ";
-        if(tmp_ptr->left != nullptr){
-            nd_que.push(tmp_ptr->left);
-        }
-            
-        if(tmp_ptr->right != nullptr){
-            nd_que.push(tmp_ptr->right);
-        }
-    }while(!nd_que.is_empty());
+        nd_que.push(tmp_ptr->left);
+        nd_que.push(tmp_ptr->right);
+    }
+    
 }
 
 // Self-def -

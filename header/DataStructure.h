@@ -13,7 +13,13 @@
 using std::cout;
 
 #include<cassert>   // should design exception handler..
+
+#include<cmath>
+using std::sqrt;
+
 #include<climits>
+#include<cstdint>
+using std::uint32_t;
 
 // Memory Manager : 
 namespace Mem_manger{
@@ -33,19 +39,23 @@ namespace Mem_manger{
 }
 using namespace Mem_manger;
 
-namespace default_setting{
-
-	template<typename T>
-	bool defau_cmp(T, T);
-		
-}
-using namespace default_setting;
 
 // Numerical Setting :
 namespace num_setting{
 	typedef unsigned long long uint; 
 }
 using namespace num_setting;
+
+
+namespace default_setting{
+
+	template<typename T>
+	bool defau_cmp(T, T);
+
+	typedef uint (*hash_func) (uint);
+		
+}
+using namespace default_setting;
 
 
 // Array type DS -
@@ -88,23 +98,14 @@ class Smart_stack{
 		int curr_ptr;
 
 	public:
-		Smart_stack():arr(), curr_ptr{-1}{};
-		Smart_stack(T val):arr(val), curr_ptr{0}{};
+		// Constructor -
+		Smart_stack();
+		Smart_stack(T);
 
-		// "copy return" to ensure the security.
-		T top(){ return arr[curr_ptr]; }
-
-		void push(T val){
-			arr.add(val);
-			++curr_ptr;
-		}
-
-		T pop(){
-			T& tmp_val = top();
-			arr.remove(curr_ptr--);
-			return tmp_val;
-		}
-
+		// Operation -
+		T top();  // "copy return" to ensure the security.
+		void push(T);
+		T pop();
 };
 
 /*
@@ -121,39 +122,28 @@ class Smart_queue{
 		int curr_ptr;
 	
 	public:
-		Smart_queue():arr(), curr_ptr{-1}{};
+		// Constructor -
+		Smart_queue();
+		Smart_queue(T);
 
-		Smart_queue(T val):arr(val), curr_ptr{0}{};
-
-		// "copy return" to ensure the security.
-		T top(){ return arr[0]; }
-
-		void push(T val){
-			arr.add(val);
-			++curr_ptr;
-		}
-
-		T pop(){
-			T tmp_val = top();
-			arr.remove(0);
-			--curr_ptr;
-			return tmp_val;
-		}
-
-		bool is_empty(){ return (curr_ptr == -1) ? true : false; }
+		// Opertion - 
+		T top();      // "copy return" to ensure the security.
+		void push(T);
+		T pop();
+		bool is_empty();
 };
 
 
 
 // < Array type DS alias
 template<class T>
-using sm_arr = Smart_array<T>;
+using Sm_arr = Smart_array<T>;
 
 template<class T>
-using sm_stk = Smart_stack<T>;
+using Sm_stk = Smart_stack<T>;
 
 template<class T>
-using sm_que = Smart_queue<T>;
+using Sm_que = Smart_queue<T>;
 //  end_of_alias
 
 
@@ -192,13 +182,16 @@ class Double_linked_list{
 		// Operation - remove type
 		void remove_idx_bk(int);
 		void remove_value(T);
+		// Search - 
+		bool find_val(T);
+		int find_idx(T);
 
 		// View -
 		void print();
 };
 // List type DS alias -
 template<class T>
-using douLst = Double_linked_list<T>;
+using DouLst = Double_linked_list<T>;
 
 
 // Tree type DS -
@@ -253,8 +246,82 @@ using BST = Binary_search_tree<T>;
 
 
 
+// Map type DS -
+template<typename T>
+class Chained_Hash_Table{
+	private:
+		DouLst<T>* hash_tab;
+
+		// bucket = 16 = 2^p, and p = 4
+		int bukt_bit;        // bukt_bit = p = 4
+
+		uint elm_cnt;
+		float load_density;  // ld_density := elm_cnt / bucket.  
+		const float density_lim;
+		
+		bool chk_ld_density(){
+			uint32_t& bucket = (1UL << bukt_bit);
+			return (static_cast<float>(elm_cnt / bucket) > density_lim) ? true : false;
+		}
+
+		uint32_t knuth_multi_hash(const int& key) {
+			assert(bukt_bit >= 0 && bukt_bit <= 32);  // bukt_bit less then word
+			float tmp = sqrt(5) - 1;
+			// Hard-code knuth_num -> 
+			//  const float& gloden_ratio = 0.5*(tmp);
+			//  const uint32_t& knuth_num = floor(gloden_ratio * (1ULL << 32)); 
+			const uint32_t& knuth_num = 2654435769;
+			return (key * knuth_num) >> (32 - bukt_bit);
+		}
+
+		void extend_hash_table(){
+			
+			return;
+		}
+
+		void shrink_hash_table(){
+
+			return ;
+		}
+
+	public:
+		Chained_Hash_Table():bucket{16}, density_lim{0.75}, bukt_bit{4}{ hash_tab = new DouLst<T>[bucket]; }
+
+		void add(T val){
+			const int& int_val = static_cast<int>(val);
+			const uint32_t& hash_idx = knuth_multi_hash(int_val);
+			hash_tab[hash_idx].add_front(val);
+			++elm_cnt;
+			if(chk_ld_density())
+				extend_hash_table();
+		}
+
+		void remove(T val){
+			int& int_val = static_cast<int>(val);
+			const uint32_t& hash_idx = knuth_multi_hash(int_val);
+			hash_tab[hash_idx].remove_value(val);
+			--elm_cnt;
+			if(chk_ld_density())
+				shrink_hash_table();
+		}
+
+		bool find_key(T val){
+			const int& int_val = static_cast<int>(val);
+			const uint32_t& hash_idx = knuth_multi_hash(int_val);
+			return hash_tab[hash_idx].find_val(val);
+		}
+
+};
+template<class T>
+using CH_Tab = Chained_Hash_Table<T>;
+
+
+
+
+
 
 /* TODO : 
-* 1. 
-* 2.
+* 1. Hash Table (dict implement).
+* 2. AVL-tree, RB+-tree.
+* 3. B-tree.
 */
