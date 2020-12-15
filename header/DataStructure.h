@@ -11,6 +11,8 @@
 // stl include : 
 #include<iostream>
 using std::cout;
+using std::cerr;
+using std::endl;
 
 #include<cassert>   // should design exception handler..
 
@@ -50,7 +52,7 @@ using namespace num_setting;
 namespace default_setting{
 
 	template<typename T>
-	bool defau_cmp(T, T);
+	short defau_cmp(T, T);
 
 	typedef uint (*hash_func) (uint);
 		
@@ -204,25 +206,27 @@ class Binary_search_tree{
 			in_order
 		};
 
+	protected:
+		class Node{  // update name BST_Node.
+				public:
+					T val;
+					Node* left;
+					Node* right; 
+					Node* parent;
+					// Node Constructor -
+					Node(T);
+					Node();
+			};
+
 	private:
-		class Node{
-			public:
-				T val;
-				Node* left;
-				Node* right; 
-				Node* parent;
-				// Node Constructor -
-				Node(T);
-				Node();
-		};
-		
 		Node* root;
 		int siz;
-		bool (*cmp_func)(T, T);
+		short (*cmp_func)(T, T);
 
 		// Utility -
-		Node* find_parent(T);
+		Node* find_node(T);
 		void add_child(Node*, Node*);
+		void splice(Node*);
 		void ord_recur(Order, Node*);
 		void prnt_spac_with_depth(); 
 
@@ -230,21 +234,50 @@ class Binary_search_tree{
 		// Constructor -
 		Binary_search_tree();
 		
-		// Operation - add type
+		// Operation - 
 		void insert(T);
+		void remove(T);
 
 		// View -
 		void order_traversal(Order);
 		void BF_print();
 
 		// Self-def -
-		void set_cmp_func(bool (*)(T, T));
+		void set_cmp_func(short (*)(T, T));
 };
+
+/*
+template<typename T>
+class AVL_tree : public Binary_search_tree<T>{
+	private:
+		class AVL_Node : public Node{ short int balance_factor; }; 
+		AVL_Node* root;
+
+	public:
+		AVL_tree():Binary_search_tree(), {
+
+		}
+
+
+};
+
+template<typename T>
+class Dictionary_tree: public AVL_tree<T>{
+	private:
+
+	public:	
+
+};
+*/ 
 // alias Tree type DS -
 template<class T>
 using BST = Binary_search_tree<T>;
-
-
+/*
+template<class T>
+using AVLT = AVL_tree<T>;
+template<class T>
+using Dict_tree = Dictionary_tree<T>;
+*/
 
 // Map type DS -
 template<typename T>
@@ -260,7 +293,7 @@ class Chained_Hash_Table{
 		const float density_lim;
 		
 		bool chk_ld_density(){
-			uint32_t& bucket = (1UL << bukt_bit);
+			const uint32_t& bucket = (1UL << bukt_bit);
 			return (static_cast<float>(elm_cnt / bucket) > density_lim) ? true : false;
 		}
 
@@ -285,7 +318,7 @@ class Chained_Hash_Table{
 		}
 
 	public:
-		Chained_Hash_Table():bucket{16}, density_lim{0.75}, bukt_bit{4}{ hash_tab = new DouLst<T>[bucket]; }
+		Chained_Hash_Table():density_lim{0.75}, bukt_bit{4}{ hash_tab = new DouLst<T>[(1UL << bukt_bit)]; }
 
 		void add(T val){
 			const int& int_val = static_cast<int>(val);

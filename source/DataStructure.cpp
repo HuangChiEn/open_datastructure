@@ -1,5 +1,8 @@
 #include"../header/DataStructure.h"
 
+// Disable the assert statement.
+//#define NDEBUG
+
 // NameSpace :
 //    @ Memory_Manager -
 // Note : C++ automatically ignore the nullptr delete.
@@ -29,7 +32,14 @@ void Mem_manger::safe_del_all_ref_ptr(T*& del_ptr){
 
 //    @ Default_Setting -
 template<typename T>
-bool default_setting::defau_cmp(T x, T y){ return (x > y) ? true : false; }
+short default_setting::defau_cmp(T x, T y){  
+    if(x > y)
+        return 1;
+    else if(x < y)
+        return 0; 
+    else // triple compare function for no duplicate element.
+        return -1;
+ }
 
 
 
@@ -321,31 +331,66 @@ Binary_search_tree<T>::Binary_search_tree():root{nullptr}, siz{0}, cmp_func{&def
 
 //  Utility -
 template<typename T>
-typename Binary_search_tree<T>::Node* Binary_search_tree<T>::find_parent(T val){
+typename Binary_search_tree<T>::Node* Binary_search_tree<T>::find_node(T val){
     Node* prev_ptr = nullptr;
     for(Node* tmp_ptr = this->root ; tmp_ptr != nullptr ; ){
         prev_ptr = tmp_ptr;
-        if(cmp_func(val, tmp_ptr->val))
-            tmp_ptr = tmp_ptr->right;
-        else
-            tmp_ptr = tmp_ptr->left;
+        switch(cmp_func(val, tmp_ptr->val)){
+            case 1:
+                tmp_ptr = tmp_ptr->right;
+                break;
+            case 0:
+                tmp_ptr = tmp_ptr->left;
+                break;
+            case -1:
+                return prev_ptr;
+        }
     }
-    
+    // for not find the node, return their parent node.
     return prev_ptr;
 }
 
 template<typename T>
-void Binary_search_tree<T>::add_child(Node* par_nd, Node* chd_nd){
-    if(par_nd == nullptr){
+void Binary_search_tree<T>::add_child(Node* prev_nd, Node* chd_nd){
+    if(prev_nd == nullptr){
         this->root = chd_nd;
     }else{
         // update parent pointer first.
-        if(cmp_func(chd_nd->val, par_nd->val))
-            par_nd->right = chd_nd;
-        else
-            par_nd->left = chd_nd;
+        switch(cmp_func(chd_nd->val, prev_nd->val)){
+            case 1:
+                prev_nd->right = chd_nd;
+                break;
+            case 0:
+                prev_nd->left = chd_nd;
+                break;
+            case -1:
+                cerr << "Warning : The element should not be duplicate." << endl;
+                return;
+            default:
+                cerr << "ERROR_MESSAGE : The self-defin compare func should return triple value (1, 0, -1)." << endl;
+                return;
+        }
         // update child pointer.
-        chd_nd->parent = par_nd;
+        chd_nd->parent = prev_nd;
+    }
+}
+
+template<typename T>
+void Binary_search_tree<T>::splice(Node* ptr_nd){
+    // remove node confirm that the ptr_nd have successor in single side.
+    Node* succsor_nd = (ptr_nd->left != nullptr) ? ptr_nd->left : ptr_nd->right;
+    
+    if(ptr_nd == root){  // for remove the root.
+        root = succsor_nd;
+        safe_del_ptr<Node>(ptr_nd);
+    }else{              
+        Node* par_nd = ptr_nd->parent;
+        if(par_nd->left == ptr_nd)
+            par_nd->left = succsor_nd;
+        else
+            par_nd->right = succsor_nd;
+
+        if(succsor_nd != nullptr) succsor_nd->parent = par_nd;
     }
 }
 
@@ -374,12 +419,33 @@ void Binary_search_tree<T>::ord_recur(Order ord, Node* tmp_ptr){
 }
 
 // Operation -
-//      add type -
 template<typename T>
 void Binary_search_tree<T>::insert(T val){
-    Node* par_nd = find_parent(val);
+    Node* prev_nd = find_node(val);  // the find_node will return prev node when not found.
     Node* chd_nd = new Node(val);
-    add_child(par_nd, chd_nd);
+    add_child(prev_nd, chd_nd);
+}
+
+template<typename T>
+void Binary_search_tree<T>::remove(T val){
+    Node* ptr_nd = find_node(val);
+    if(ptr_nd->val != val){
+        cerr << "ERROR_MESSAGE : The removed node have not found." << endl;
+        return;
+    }
+    // Single-side is nullptr, then the simple splice is execute.
+    if(ptr_nd->left == nullptr || ptr_nd->right == nullptr){
+        splice(ptr_nd);
+        safe_del_ptr<Node>(ptr_nd);
+    }else{  // Both side have node.
+        Node* replce_nd = ptr_nd->right;
+        // find the smallest node, which greate then ptr_nd in right sub-tree.
+        while(replce_nd->left != nullptr){replce_nd = replce_nd->left;}
+        ptr_nd->val = replce_nd->val;
+        splice(replce_nd);
+        safe_del_ptr<Node>(replce_nd);
+    }
+        
 }
 
 // View -
@@ -404,7 +470,7 @@ void Binary_search_tree<T>::BF_print(){
 
 // Self-def -
 template<typename T>
-void Binary_search_tree<T>::set_cmp_func(bool (*cmp_func)(T, T)){ this->cmp_func = cmp_func; }
+void Binary_search_tree<T>::set_cmp_func(short (*cmp_func)(T, T)){ this->cmp_func = cmp_func; }
 // end of Binary_Search_Tree@
 
 
