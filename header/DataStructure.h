@@ -206,26 +206,24 @@ class Binary_search_tree{
 			in_order
 		};
 
-	protected:
+	private:
 		class Node{  // update name BST_Node.
-				public:
-					T val;
-					Node* left;
-					Node* right; 
-					Node* parent;
-					// Node Constructor -
-					Node(T);
-					Node();
-			};
+			public:
+				T val;
+				Node* left;
+				Node* right;
+				Node* parent; 
+				// Node Constructor -
+				Node(T);
+				Node();
+		};
+		short (*cmp_func)(T, T);
 
 	private:
 		Node* root;
-		int siz;
-		short (*cmp_func)(T, T);
-
 		// Utility -
-		Node* find_node(T);
 		void add_child(Node*, Node*);
+		Node* find_node(T);
 		void splice(Node*);
 		void ord_recur(Order, Node*);
 		void prnt_spac_with_depth(); 
@@ -233,6 +231,7 @@ class Binary_search_tree{
 	public:
 		// Constructor -
 		Binary_search_tree();
+		Binary_search_tree(short (*)(T, T));
 		
 		// Operation - 
 		void insert(T);
@@ -242,25 +241,41 @@ class Binary_search_tree{
 		void order_traversal(Order);
 		void BF_print();
 
-		// Self-def -
-		void set_cmp_func(short (*)(T, T));
 };
 
-/*
+
 template<typename T>
 class AVL_tree : public Binary_search_tree<T>{
 	private:
-		class AVL_Node : public Node{ short int balance_factor; }; 
+		class AVL_Node : public Node{
+			public:
+				short int balance_factor;
+
+				// Node Constructor -
+				AVL_Node(short int balance_factor):Node(), balance_factor{balance_factor}{}
+				AVL_node(T val, short int balance_factor):Node(val), balance_factor{balance_factor}{}
+		}; 
+
 		AVL_Node* root;
 
 	public:
-		AVL_tree():Binary_search_tree(), {
+		AVL_tree():root{nullptr}, cmp_func{&defau_cmp<T>}{};
 
+		AVL_tree(short (*def_cmp_func)(T, T)):root{nullptr}, cmp_func{def_cmp_func}{}
+
+		void insert(T val){
+			Binary_search_tree<T>::insert(val);
+			AVL_tree* new_nd = Binary_search_tree<T>::find_node(val);
+			chk_balance();
+			rotate();
 		}
 
+		void remove(T val){
 
+		}
 };
 
+/*
 template<typename T>
 class Dictionary_tree: public AVL_tree<T>{
 	private:
@@ -268,13 +283,14 @@ class Dictionary_tree: public AVL_tree<T>{
 	public:	
 
 };
-*/ 
+*/
+ 
 // alias Tree type DS -
 template<class T>
 using BST = Binary_search_tree<T>;
-/*
 template<class T>
 using AVLT = AVL_tree<T>;
+/*
 template<class T>
 using Dict_tree = Dictionary_tree<T>;
 */
@@ -349,7 +365,7 @@ template<class T>
 using CH_Tab = Chained_Hash_Table<T>;
 
 
-
+// Graph type DS.
 
 
 

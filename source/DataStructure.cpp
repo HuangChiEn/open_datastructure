@@ -327,7 +327,11 @@ Binary_search_tree<T>::Node::Node(T val):val{val}, left{nullptr}, right{nullptr}
 
 //  Constructor -
 template<typename T>
-Binary_search_tree<T>::Binary_search_tree():root{nullptr}, siz{0}, cmp_func{&defau_cmp<T>}{}
+Binary_search_tree<T>::Binary_search_tree():root{nullptr}, cmp_func{&defau_cmp<T>}{}
+
+template<typename T>
+Binary_search_tree<T>::Binary_search_tree(short (*def_cmp_func)(T, T)):root{nullptr}, cmp_func{def_cmp_func}{}
+
 
 //  Utility -
 template<typename T>
@@ -424,6 +428,7 @@ void Binary_search_tree<T>::insert(T val){
     Node* prev_nd = find_node(val);  // the find_node will return prev node when not found.
     Node* chd_nd = new Node(val);
     add_child(prev_nd, chd_nd);
+
 }
 
 template<typename T>
@@ -445,7 +450,7 @@ void Binary_search_tree<T>::remove(T val){
         splice(replce_nd);
         safe_del_ptr<Node>(replce_nd);
     }
-        
+       
 }
 
 // View -
@@ -467,10 +472,6 @@ void Binary_search_tree<T>::BF_print(){
     }
     
 }
-
-// Self-def -
-template<typename T>
-void Binary_search_tree<T>::set_cmp_func(short (*cmp_func)(T, T)){ this->cmp_func = cmp_func; }
 // end of Binary_Search_Tree@
 
 

@@ -18,24 +18,24 @@ int main(){
 	
 	srand(time(NULL));
 	
-	BST<int32_t> bst_tree;
+	AVLT<int32_t> avl_tree;
 	int32_t* arr = uniform_data_gen(MAXLEN, DIGRNG);
 	cout << "Non duplicate series : \n";
 	for(int idx=0 ; idx < MAXLEN ; ++idx){
 		cout << arr[idx] << " ";
-		bst_tree.insert(arr[idx]);
+		avl_tree.insert(arr[idx]);
 	}
 	cout << "\nBF print\n";
-	bst_tree.BF_print();
+	avl_tree.BF_print();
 
 	cout << "\nRemoving elements :\n";
 	for(int idx=0 ; idx < MAXLEN-10 ; ++idx){
 		cout << arr[idx] << " ";
-		bst_tree.remove(arr[idx]);
+		avl_tree.remove(arr[idx]);
 	}
 		
 	cout << "\nBF print 2 :\n";
-	bst_tree.BF_print();
+	avl_tree.BF_print();
 
 	cout << "done";
 	return 0;
