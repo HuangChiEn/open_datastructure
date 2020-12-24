@@ -197,38 +197,46 @@ using DouLst = Double_linked_list<T>;
 
 
 // Tree type DS -
+//  Basic element of BST.
+//		Node --
 template<typename T>
+class Node{  // update name BST_Node.
+	public:
+		T val;
+		Node* left;
+		Node* right;
+		Node* parent; 
+		// Node Constructor -
+		Node();
+		Node(T);
+};
+
+// 		AVL_node
+template<typename T>
+class AVL_Node{  // inhert problem can not solve..
+	public:
+		short int balance_factor;
+		T val;
+		AVL_Node* left;
+		AVL_Node* right;
+		AVL_Node* parent; 
+		
+		// Node Constructor -
+		AVL_Node(T val):balance_factor{0}, val{val}, left{nullptr}, right{nullptr}, parent{nullptr}{}
+		AVL_Node(T val, short int balance_factor):balance_factor{balance_factor}, val{val}, left{nullptr}, right{nullptr}, parent{nullptr}{}
+		
+}; 
+
+
+template<typename T, typename bst_node=Node<T>>
 class Binary_search_tree{
 	public:
-		enum Order{
+		enum Order{  // for the order traversal.
 			pre_order,
 			post_order,
 			in_order
 		};
 
-	private:
-		class Node{  // update name BST_Node.
-			public:
-				T val;
-				Node* left;
-				Node* right;
-				Node* parent; 
-				// Node Constructor -
-				Node(T);
-				Node();
-		};
-		short (*cmp_func)(T, T);
-
-	private:
-		Node* root;
-		// Utility -
-		void add_child(Node*, Node*);
-		Node* find_node(T);
-		void splice(Node*);
-		void ord_recur(Order, Node*);
-		void prnt_spac_with_depth(); 
-
-	public:
 		// Constructor -
 		Binary_search_tree();
 		Binary_search_tree(short (*)(T, T));
@@ -241,38 +249,58 @@ class Binary_search_tree{
 		void order_traversal(Order);
 		void BF_print();
 
+	protected:
+		short (*cmp_func)(T, T);
+		
+		// Utility -
+		void add_child(bst_node*, bst_node*);
+
+		bst_node* find_node(T);
+
+		void splice(bst_node*);
+
+		void ord_recur(Order, bst_node*);
+
+		uint32_t get_depth(bst_node*);
+		
+		//void prnt_spac_with_depth(); 
+
+		bst_node* root;
 };
 
 
-template<typename T>
-class AVL_tree : public Binary_search_tree<T>{
+template<typename T, typename avl_node=AVL_Node<T>>
+class AVL_tree : public Binary_search_tree<T, avl_node>{
 	private:
-		class AVL_Node : public Node{
-			public:
-				short int balance_factor;
+		//avl_node* root;
 
-				// Node Constructor -
-				AVL_Node(short int balance_factor):Node(), balance_factor{balance_factor}{}
-				AVL_node(T val, short int balance_factor):Node(val), balance_factor{balance_factor}{}
-		}; 
+	protected:
+		bool chk_balance(avl_node* ){
 
-		AVL_Node* root;
+		}
+
+		
 
 	public:
-		AVL_tree():root{nullptr}, cmp_func{&defau_cmp<T>}{};
+		AVL_tree():Binary_search_tree<T, avl_node>::Binary_search_tree(){};
+		AVL_tree(short (*def_cmp_func)(T, T)):Binary_search_tree<T, avl_node>::Binary_search_tree(def_cmp_func){}
 
-		AVL_tree(short (*def_cmp_func)(T, T)):root{nullptr}, cmp_func{def_cmp_func}{}
-
+		
 		void insert(T val){
-			Binary_search_tree<T>::insert(val);
-			AVL_tree* new_nd = Binary_search_tree<T>::find_node(val);
-			chk_balance();
-			rotate();
+			// procedure of insert in BST.
+			avl_node* prev_nd = this->find_node(val);
+			avl_node* chd_nd = new avl_node(val);
+			this->add_child(prev_nd, chd_nd);
+			// update the height of the node after insert.
+			const uint32_t& dep = this->get_depth(chd_nd);
+			cout << "depth : " << dep;
+			//chk_balance(chd_nd);
+			//rotate();
 		}
-
-		void remove(T val){
-
-		}
+		
+		//void remove(T val){
+		//	;
+		//}
 };
 
 /*
@@ -286,10 +314,10 @@ class Dictionary_tree: public AVL_tree<T>{
 */
  
 // alias Tree type DS -
-template<class T>
-using BST = Binary_search_tree<T>;
-template<class T>
-using AVLT = AVL_tree<T>;
+template<class T, typename bst_node=Node<T>>
+using BST = Binary_search_tree<T, bst_node>;
+template<class T, typename avl_node=AVL_Node<T>>
+using AVLT = AVL_tree<T, avl_node>;
 /*
 template<class T>
 using Dict_tree = Dictionary_tree<T>;

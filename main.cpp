@@ -9,13 +9,12 @@ using std::cout;
 #include"header/Blkbox_Tester.h"
 #include"source/DataStructure.cpp"
 
-#define MAXLEN 20
+#define MAXLEN 5
 #define DIGRNG 100
 
 //typedef int DATATYPE;
 
 int main(){
-	
 	srand(time(NULL));
 	
 	AVLT<int32_t> avl_tree;
@@ -29,15 +28,17 @@ int main(){
 	avl_tree.BF_print();
 
 	cout << "\nRemoving elements :\n";
-	for(int idx=0 ; idx < MAXLEN-10 ; ++idx){
+	for(int idx=0 ; idx < MAXLEN ; ++idx){
 		cout << arr[idx] << " ";
 		avl_tree.remove(arr[idx]);
 	}
 		
 	cout << "\nBF print 2 :\n";
 	avl_tree.BF_print();
-
+	
 	cout << "done";
+	
+	
 	return 0;
 }
 
