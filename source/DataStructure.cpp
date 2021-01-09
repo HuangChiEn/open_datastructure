@@ -153,6 +153,9 @@ T Smart_stack<T>::pop(){
     arr.remove(curr_ptr--);
     return tmp_val;
 }
+
+template<typename T>
+bool Smart_stack<T>::is_empty(){ return (curr_ptr == -1) ? true : false; }
 // end of Smart_Stack @
 
 
@@ -320,24 +323,24 @@ void Double_linked_list<T>::print(){
 //   @Composite object -
 //      Node Constructor -
 template<typename T>
-Node<T>::Node():val{}, left{nullptr}, right{nullptr}, parent{nullptr}{}
+Binary_search_tree<T>::Node::Node():val{}, left{nullptr}, right{nullptr}, parent{nullptr}{}
 
 template<typename T>
-Node<T>::Node(T val):val{val}, left{nullptr}, right{nullptr}, parent{nullptr}{}
+Binary_search_tree<T>::Node::Node(T val):val{val}, left{nullptr}, right{nullptr}, parent{nullptr}{}
 
 //  Constructor -
-template<typename T, typename bst_node>
-Binary_search_tree<T, bst_node>::Binary_search_tree():root{nullptr}, cmp_func{&defau_cmp<T>}{}
+template<typename T>
+Binary_search_tree<T>::Binary_search_tree():root{nullptr}, cmp_func{&defau_cmp<T>}{}
 
-template<typename T, typename bst_node>
-Binary_search_tree<T, bst_node>::Binary_search_tree(short (*def_cmp_func)(T, T)):root{nullptr}, cmp_func{def_cmp_func}{}
+template<typename T>
+Binary_search_tree<T>::Binary_search_tree(short (*def_cmp_func)(T, T)):root{nullptr}, cmp_func{def_cmp_func}{}
 
 
 //  Utility -
-template<typename T, typename bst_node>
-bst_node* Binary_search_tree<T, bst_node>::find_node(T val){
-    bst_node* prev_ptr = nullptr;
-    for(bst_node* tmp_ptr = this->root ; tmp_ptr != nullptr ; ){
+template<typename T>
+typename Binary_search_tree<T>::Node* Binary_search_tree<T>::find_node(T val){
+    Node* prev_ptr = nullptr;
+    for(Node* tmp_ptr = this->root ; tmp_ptr != nullptr ; ){
         prev_ptr = tmp_ptr;
         switch(cmp_func(val, tmp_ptr->val)){
             case 1:
@@ -354,8 +357,8 @@ bst_node* Binary_search_tree<T, bst_node>::find_node(T val){
     return prev_ptr;
 }
 
-template<typename T, typename bst_node>
-void Binary_search_tree<T, bst_node>::add_child(bst_node* prev_nd, bst_node* chd_nd){
+template<typename T>
+void Binary_search_tree<T>::add_child(Node* prev_nd, Node* chd_nd){
     //if(prev_nd != nullptr)
     //    cout << "prev : "<<prev_nd->val;
     //cout << " ; bst : " << chd_nd->val << "\n";
@@ -382,16 +385,15 @@ void Binary_search_tree<T, bst_node>::add_child(bst_node* prev_nd, bst_node* chd
     }
 }
 
-template<typename T, typename bst_node>
-void Binary_search_tree<T, bst_node>::splice(bst_node* ptr_nd){
+template<typename T>
+void Binary_search_tree<T>::splice(Node* ptr_nd){
     // remove node confirm that the ptr_nd have successor in single side.
-    bst_node* succsor_nd = (ptr_nd->left != nullptr) ? ptr_nd->left : ptr_nd->right;
+    Node* succsor_nd = (ptr_nd->left != nullptr) ? ptr_nd->left : ptr_nd->right;
     
-    if(ptr_nd == root){  // for remove the root.
-        root = succsor_nd;
-        safe_del_ptr<bst_node>(ptr_nd);
+    if(ptr_nd == this->root){  // for remove the root.
+        this->root = succsor_nd;
     }else{              
-        bst_node* par_nd = ptr_nd->parent;
+        Node* par_nd = ptr_nd->parent;
         if(par_nd->left == ptr_nd)
             par_nd->left = succsor_nd;
         else
@@ -401,8 +403,8 @@ void Binary_search_tree<T, bst_node>::splice(bst_node* ptr_nd){
     }
 }
 
-template<typename T, typename bst_node>
-void Binary_search_tree<T, bst_node>::ord_recur(Order ord, bst_node* tmp_ptr){
+template<typename T>
+void Binary_search_tree<T>::ord_recur(Order ord, Node* tmp_ptr){
     if(tmp_ptr == nullptr)
         return;
 
@@ -425,26 +427,40 @@ void Binary_search_tree<T, bst_node>::ord_recur(Order ord, bst_node* tmp_ptr){
     }
 }
 
-
-template<typename T, typename bst_node>
-uint32_t Binary_search_tree<T, bst_node>::get_depth(bst_node* node){
+template<typename T>
+uint32_t Binary_search_tree<T>::get_depth(Node* node){
     assert(node != nullptr);  // prevent nullptr. 
     uint32_t depth = 0;
     for( ; node != this->root ; node = node->parent){ ++depth; }
     return depth;
 }
 
+template<typename T>
+uint32_t Binary_search_tree<T>::recur_get_height(Node* ptr_nd){
+    if(ptr_nd == nullptr)
+        return 0;
+    const uint32_t& lft_hei = recur_get_height(ptr_nd->left) + 1;
+    const uint32_t& rgt_hei = recur_get_height(ptr_nd->right) + 1;
+    return (lft_hei >= rgt_hei) ? lft_hei : rgt_hei;
+}
+
+template<typename T>
+uint32_t Binary_search_tree<T>::get_height(Node* ptr_nd){
+    assert(ptr_nd != nullptr);
+    return max(recur_get_height(ptr_nd->left), recur_get_height(ptr_nd->right)); 
+}
+
 // Operation -
-template<typename T, typename bst_node>
-void Binary_search_tree<T, bst_node>::insert(T val){
-    bst_node* prev_nd = find_node(val);  // the find_node will return prev node when not found.
-    bst_node* chd_nd = new bst_node(val);
+template<typename T>
+void Binary_search_tree<T>::insert(T val){
+    Node* prev_nd = find_node(val);  // the find_node will return prev node when not found.
+    Node* chd_nd = new Node(val);
     add_child(prev_nd, chd_nd);
 }
 
-template<typename T, typename bst_node>
-void Binary_search_tree<T, bst_node>::remove(T val){
-    bst_node* ptr_nd = find_node(val);
+template<typename T>
+void Binary_search_tree<T>::remove(T val){
+    Node* ptr_nd = find_node(val);
     if(ptr_nd == nullptr || ptr_nd->val != val){
         cerr << "ERROR_MESSAGE : The removed node have not found." << endl;
         return;
@@ -452,27 +468,27 @@ void Binary_search_tree<T, bst_node>::remove(T val){
     // Single-side is nullptr, then the simple splice is execute.
     if(ptr_nd->left == nullptr || ptr_nd->right == nullptr){
         splice(ptr_nd);
-        safe_del_ptr<bst_node>(ptr_nd);
+        safe_del_ptr<Node>(ptr_nd);
     }else{  // Both side have node.
-        bst_node* replce_nd = ptr_nd->right;
+        Node* replce_nd = ptr_nd->right;
         // find the smallest node, which greate then ptr_nd in right sub-tree.
         while(replce_nd->left != nullptr){replce_nd = replce_nd->left;}
         ptr_nd->val = replce_nd->val;
         splice(replce_nd);
-        safe_del_ptr<bst_node>(replce_nd);
+        safe_del_ptr<Node>(replce_nd);
     }
        
 }
 
 // View -
-template<typename T, typename bst_node>
-void Binary_search_tree<T, bst_node>::order_traversal(Order ord){ ord_recur(ord, this->root); }
+template<typename T>
+void Binary_search_tree<T>::order_traversal(Order ord){ ord_recur(ord, this->root); }
 
-template<typename T, typename bst_node>
-void Binary_search_tree<T, bst_node>::BF_print(){
-    Smart_queue<bst_node*> nd_que(this->root);
+template<typename T>
+void Binary_search_tree<T>::BF_print(){
+    Smart_queue<Node*> nd_que(this->root);
     while(!nd_que.is_empty()){
-        bst_node* tmp_ptr = nd_que.pop();
+        Node* tmp_ptr = nd_que.pop();
         if(tmp_ptr == nullptr)
             continue;
 

@@ -9,35 +9,41 @@ using std::cout;
 #include"header/Blkbox_Tester.h"
 #include"source/DataStructure.cpp"
 
-#define MAXLEN 5
+#define MAXLEN 25
 #define DIGRNG 100
 
 //typedef int DATATYPE;
 
 int main(){
+	
 	srand(time(NULL));
 	
-	AVLT<int32_t> avl_tree;
+	BST<int32_t> bst_tree;
 	int32_t* arr = uniform_data_gen(MAXLEN, DIGRNG);
 	cout << "Non duplicate series : \n";
 	for(int idx=0 ; idx < MAXLEN ; ++idx){
 		cout << arr[idx] << " ";
-		avl_tree.insert(arr[idx]);
+		bst_tree.insert(arr[idx]);
 	}
 	cout << "\nBF print\n";
-	avl_tree.BF_print();
+	bst_tree.BF_print();
+	cout << "\n";
+	bst_tree.order_traversal(bst_tree.Order::in_order);
+	cout << "\n";
+	bst_tree.order_traversal(bst_tree.Order::pre_order);
+	cout << "\n";
+	bst_tree.order_traversal(bst_tree.Order::post_order);
 
 	cout << "\nRemoving elements :\n";
 	for(int idx=0 ; idx < MAXLEN ; ++idx){
 		cout << arr[idx] << " ";
-		avl_tree.remove(arr[idx]);
+		bst_tree.remove(arr[idx]);
 	}
 		
-	cout << "\nBF print 2 :\n";
-	avl_tree.BF_print();
+	cout << "\nBF print :\n";
+	bst_tree.BF_print();
 	
 	cout << "done";
-	
 	
 	return 0;
 }
