@@ -41,4 +41,3 @@ int32_t* uniform_data_gen(uint32_t seris_len, int32_t num_rng){
          
     return container;
 }
-

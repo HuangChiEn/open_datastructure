@@ -77,6 +77,8 @@ class Smart_array{  // very basic DS, we can fully enter the low-level of this D
 		// Constructor -
 		Smart_array();
 		Smart_array(T);
+		//Smart_array(Smart_array);  // copy constructor
+
 		
 		// Getter for the assign operator - 
 		T* get_arr();
@@ -199,11 +201,6 @@ using DouLst = Double_linked_list<T>;
 
 
 // Tree type DS -
-//  Basic element of BST.
-//		Node --
-
-
-
 template<typename T>
 class Binary_search_tree{
 	private:
@@ -258,24 +255,176 @@ class Binary_search_tree{
 };
 
 
-
-/*
 template<typename T>
-class Dictionary_tree: public AVL_tree<T>{
+class AVL_tree{
 	private:
+		class AVL_Node{  // update name BST_Node.
+			public:
+				T val;
+				AVL_Node* left;
+				AVL_Node* right;
+				AVL_Node* parent; 
+				int height;
+				
+				// Node Constructor -
+				AVL_Node():left{nullptr}, right{nullptr}, parent{nullptr}, val{}, height{0}{}
+				AVL_Node(T val): left{nullptr}, right{nullptr}, parent{nullptr}, height{0}, val{val}{}
+		};
+		AVL_Node* root;
 
-	public:	
+		short (*cmp_func)(T, T);
+
+		typedef static enum rotate_direct{
+			LEFT,
+			RIGHT
+		} Direct;
+		
+		// Utility -
+		void add_child(AVL_Node* prev_nd, AVL_Node* chd_nd){
+			if(prev_nd == nullptr){
+				this->root = chd_nd;
+				return;
+			}
+				
+			// update parent pointer first.
+			switch(cmp_func(chd_nd->val, prev_nd->val)){
+				case 1:
+					prev_nd->right = chd_nd;
+					break;
+				case 0:
+					prev_nd->left = chd_nd;
+					break;
+				case -1:
+					cerr << "Warning : The element should not be duplicate." << endl;
+					return;
+				default:
+					cerr << "ERROR_MESSAGE : The self-defin compare func should return triple value (1, 0, -1)." << endl;
+					return;
+			}
+
+			// update parent pointer of child node
+			chd_nd->parent = prev_nd;
+		}
+
+		AVL_Node* find_node(T val){
+			AVL_Node* prev_ptr = nullptr;
+			for(AVL_Node* tmp_ptr = this->root ; tmp_ptr != nullptr ; ){
+				prev_ptr = tmp_ptr;
+				switch(cmp_func(val, tmp_ptr->val)){
+					case 1:
+						tmp_ptr = tmp_ptr->right;
+						break;
+					case 0:
+						tmp_ptr = tmp_ptr->left;
+						break;
+					case -1:
+						return prev_ptr;
+				}
+			}
+			// for not find the node, return their parent node.
+			return prev_ptr;
+		}
+
+		int get_max(int a, int b){
+			return (a >= b) ? a : b;
+		}
+
+		int get_height(AVL_Node* ptr_nd){
+			if(ptr_nd == nullptr)
+				return -1;
+			return get_max(get_height(ptr_nd->left), get_height(ptr_nd->right)) + 1;
+		}
+
+		void update_height(AVL_Node* new_nd){
+			//while(new_nd != nullptr);
+			int lft_hei = get_height(news_nd->left);
+			int rgt_hei = get_height(chd_nd->right);
+			chd_nd->height = calcu_balance(lft_hei, rgt_hei);
+			new_nd = new_nd->parent;
+		}
+
+		int cal_balance(AVL_Node* new_nd){
+			if(new_nd->left == nullptr)
+				return -new_nd->right->height;
+			else if(new_nd->right == nullptr)
+				return new_nd->left->height;
+			
+			return new_nd->left->height - new_nd->right->height;
+		}
+
+		void rotate(AVL_Node* chd_nd, Direct& direct){
+			if(direct == RD::LEFT){
+				return;
+			}else{
+				return;
+			}
+		}
+
+	public:
+		static enum Order{  // for the order traversal.
+			pre_order,
+			post_order,
+			in_order
+		};
+
+		// Constructor -
+		AVL_tree():root{nullptr}, cmp_func{&defau_cmp<T>}{}
+		AVL_tree(short (*def_cmp_func)(T, T)):root{nullptr}, cmp_func{def_cmp_func}{}
+		
+		// Operation - 
+		void insert(T val){
+			// BST insertion
+			AVL_Node* prev_nd = find_node(val);  
+			AVL_Node* chd_nd = new AVL_Node(val);
+			add_child(prev_nd, chd_nd);
+
+			// Balance the tree
+			for(AVL_Node* nd_ptr = prev_nd ; nd_ptr != nullptr ; nd_ptr = nd_ptr->parent){
+				prev_nd->height = get_height(prev_nd);
+				int bf = cal_balance(prev_nd);
+
+				if( bf > 1 ){
+					if(val > prev_nd->left->val)
+						rotate(prev_nd->left, Direct::LEFT);
+
+					rotate(prev_nd, Direct::RIGHT);
+
+				}else if(bf < -1){
+					if(val < prev_nd->right->val)
+						rotate(prev_nd->left, Direct::RIGHT);
+
+					rotate(prev_nd, Direct::LEFT);
+
+				}  // else, the sub-tree is already balanced
+			}
+		}
+
+		void prnt_balance(){
+			AVL_Node* tmp = this->root;
+			cout << " hei : " << get_height(tmp);
+		}
+
+		void BF_print(){
+			Smart_queue<AVL_Node*> nd_que(this->root);
+			while(!nd_que.is_empty()){
+				AVL_Node* tmp_ptr = nd_que.pop();
+				if(tmp_ptr == nullptr)
+					continue;
+
+				cout << tmp_ptr->val << " ";
+				nd_que.push(tmp_ptr->left);
+				nd_que.push(tmp_ptr->right);
+			}
+		}
 
 };
-*/
- 
+
 // alias Tree type DS -
 template<class T>
 using BST = Binary_search_tree<T>;
-/*
 template<class T>
-using Dict_tree = Dictionary_tree<T>;
-*/
+using AVL = AVL_tree<T>;
+
 
 // Map type DS -
 template<typename T>
@@ -298,6 +447,7 @@ class Chained_Hash_Table{
 		uint32_t knuth_multi_hash(const int& key) {
 			assert(bukt_bit >= 0 && bukt_bit <= 32);  // bukt_bit less then word
 			float tmp = sqrt(5) - 1;
+			
 			// Hard-code knuth_num -> 
 			//  const float& gloden_ratio = 0.5*(tmp);
 			//  const uint32_t& knuth_num = floor(gloden_ratio * (1ULL << 32)); 

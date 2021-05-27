@@ -1,50 +1,33 @@
 #include<iostream>
 using std::cout;
+
 #include<ctime>
 #include<cstdlib>
 #include<cstdint>
 #include<string>
 
+// DS-include
 #include"header/DataStructure.h"
-#include"header/Blkbox_Tester.h"
 #include"source/DataStructure.cpp"
+#include"testing/Blkbox_Tester.h"
 
-#define MAXLEN 25
-#define DIGRNG 100
-
-//typedef int DATATYPE;
 
 int main(){
-	
-	srand(time(NULL));
-	
-	BST<int32_t> bst_tree;
-	int32_t* arr = uniform_data_gen(MAXLEN, DIGRNG);
-	cout << "Non duplicate series : \n";
-	for(int idx=0 ; idx < MAXLEN ; ++idx){
-		cout << arr[idx] << " ";
-		bst_tree.insert(arr[idx]);
-	}
-	cout << "\nBF print\n";
-	bst_tree.BF_print();
-	cout << "\n";
-	bst_tree.order_traversal(bst_tree.Order::in_order);
-	cout << "\n";
-	bst_tree.order_traversal(bst_tree.Order::pre_order);
-	cout << "\n";
-	bst_tree.order_traversal(bst_tree.Order::post_order);
+	const uint32_t MAXLEN = 10;
+	const int32_t DIGRNG = 100;
 
-	cout << "\nRemoving elements :\n";
+	srand(time(NULL));
+	int32_t* arr = uniform_data_gen(MAXLEN, DIGRNG);
+	
+	AVL<int32_t> avl_tree;
 	for(int idx=0 ; idx < MAXLEN ; ++idx){
-		cout << arr[idx] << " ";
-		bst_tree.remove(arr[idx]);
+		avl_tree.insert(arr[idx]);
+		cout << arr[idx] << " ; ";
 	}
-		
-	cout << "\nBF print :\n";
-	bst_tree.BF_print();
-	
-	cout << "done";
-	
+	avl_tree.prnt_balance();
+	cout << "\n BFT Traversal \n " ;
+	avl_tree.BF_print();
+
 	return 0;
 }
 

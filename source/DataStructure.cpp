@@ -353,15 +353,12 @@ typename Binary_search_tree<T>::Node* Binary_search_tree<T>::find_node(T val){
                 return prev_ptr;
         }
     }
-    // for not find the node, return their parent node.
+    // in case of 'not found the node', return their parent node ptr.
     return prev_ptr;
 }
 
 template<typename T>
 void Binary_search_tree<T>::add_child(Node* prev_nd, Node* chd_nd){
-    //if(prev_nd != nullptr)
-    //    cout << "prev : "<<prev_nd->val;
-    //cout << " ; bst : " << chd_nd->val << "\n";
     if(prev_nd == nullptr){
         this->root = chd_nd;
     }else{
@@ -387,7 +384,8 @@ void Binary_search_tree<T>::add_child(Node* prev_nd, Node* chd_nd){
 
 template<typename T>
 void Binary_search_tree<T>::splice(Node* ptr_nd){
-    // remove node confirm that the ptr_nd have successor in single side.
+    /* remove node confirm that the ptr_nd have successor in single side.
+                                                      Case 1.   ;    Case 2.   */
     Node* succsor_nd = (ptr_nd->left != nullptr) ? ptr_nd->left : ptr_nd->right;
     
     if(ptr_nd == this->root){  // for remove the root.
@@ -465,11 +463,11 @@ void Binary_search_tree<T>::remove(T val){
         cerr << "ERROR_MESSAGE : The removed node have not found." << endl;
         return;
     }
-    // Single-side is nullptr, then the simple splice is execute.
+    // Case 1. Single-side is nullptr, then the simple splice is execute.
     if(ptr_nd->left == nullptr || ptr_nd->right == nullptr){
         splice(ptr_nd);
         safe_del_ptr<Node>(ptr_nd);
-    }else{  // Both side have node.
+    }else{  // Case 2. Both side have node.
         Node* replce_nd = ptr_nd->right;
         // find the smallest node, which greate then ptr_nd in right sub-tree.
         while(replce_nd->left != nullptr){replce_nd = replce_nd->left;}
@@ -496,7 +494,6 @@ void Binary_search_tree<T>::BF_print(){
         nd_que.push(tmp_ptr->left);
         nd_que.push(tmp_ptr->right);
     }
-    
 }
 // end of Binary_Search_Tree@
 
