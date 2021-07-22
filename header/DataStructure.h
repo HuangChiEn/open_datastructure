@@ -289,129 +289,30 @@ class AVL_tree{
 				int height;
 				
 				// Node Constructor -
-				AVL_Node():left{nullptr}, right{nullptr}, parent{nullptr}, val{}, height{0}{}
-				AVL_Node(T val): left{nullptr}, right{nullptr}, parent{nullptr}, height{0}, val{val}{}
+				AVL_Node();
+				AVL_Node(T val);
 		};
 		AVL_Node* root;
 
 		short (*cmp_func)(T, T);
 		
 		// Utility -
-		void add_child(AVL_Node* prev_nd, AVL_Node* chd_nd){
-			if(prev_nd == nullptr){
-				this->root = chd_nd;
-				return;
-			}
-				
-			// update parent pointer first.
-			switch(cmp_func(chd_nd->val, prev_nd->val)){
-				case 1:
-					prev_nd->right = chd_nd;
-					break;
-				case 0:
-					prev_nd->left = chd_nd;
-					break;
-				case -1:
-					cerr << "Warning : The element should not be duplicate." << endl;
-					return;
-				default:
-					cerr << "ERROR_MESSAGE : The self-defin compare func should return triple value (1, 0, -1)." << endl;
-					return;
-			}
+		void add_child(AVL_Node*, AVL_Node*);
 
-			// update parent pointer of child node
-			chd_nd->parent = prev_nd;
-		}
+		AVL_Node* find_node(T);
 
-		AVL_Node* find_node(T val){
-			AVL_Node* prev_ptr = nullptr;
-			for(AVL_Node* tmp_ptr = this->root ; tmp_ptr != nullptr ; ){
-				prev_ptr = tmp_ptr;
-				switch(cmp_func(val, tmp_ptr->val)){
-					case 1:
-						tmp_ptr = tmp_ptr->right;
-						break;
-					case 0:
-						tmp_ptr = tmp_ptr->left;
-						break;
-					case -1:
-						return prev_ptr;
-				}
-			}
-			// for not find the node, return their parent node.
-			return prev_ptr;
-		}
+		void splice(AVL_Node*);
 
-		int get_max(int a, int b){ return (a >= b) ? a : b; }
+		int get_max(int, int);
 
-		int get_height(AVL_Node* ptr_nd){
-			if(ptr_nd == nullptr)
-				return -1;
+		int get_height(AVL_Node*);
 
-			return ptr_nd->height;
-		}
+		int cal_balance(AVL_Node*);
 
-		int cal_balance(AVL_Node* nd_ptr){ return get_height(nd_ptr->left) - get_height(nd_ptr->right); }
+		AVL_Node* Right_rotate(AVL_Node*);
 
-		AVL_Node* Right_rotate(AVL_Node* curr_nd){
-			AVL_Node* lft_chd = curr_nd->left;
-			AVL_Node* rgt_suc = lft_chd->right;
+		AVL_Node* Left_rotate(AVL_Node*);
 
-			// Perform rotation
-			lft_chd->right = curr_nd;
-			curr_nd->left = rgt_suc;
-
-			// update parent pointer of current pointed node and child node 
-			lft_chd->parent = curr_nd->parent;
-			curr_nd->parent = lft_chd;
-			if(rgt_suc != nullptr)
-				rgt_suc->parent = curr_nd;
-		
-			// Update heights
-			lft_chd->height = get_max(get_height(lft_chd->left), get_height(lft_chd->right)) + 1;
-			curr_nd->height = get_max(get_height(curr_nd->left), get_height(curr_nd->right)) + 1;
-
-			return lft_chd;
-		}
-
-		AVL_Node* Left_rotate(AVL_Node* curr_nd){
-			AVL_Node* rgt_chd =  curr_nd->right;
-			AVL_Node* lft_suc = rgt_chd->left;
-		
-			// Perform rotation
-			rgt_chd->left = curr_nd;
-			curr_nd->right = lft_suc;
-
-			// update parent pointer of current pointed node and child node 
-			rgt_chd->parent = curr_nd->parent;
-			curr_nd->parent = rgt_chd;
-			if(lft_suc != nullptr)
-				lft_suc->parent = curr_nd;
-
-			// Update heights
-			rgt_chd->height = get_max(get_height(rgt_chd->left), get_height(rgt_chd->right)) + 1;
-			curr_nd->height = get_max(get_height(curr_nd->left), get_height(curr_nd->right)) + 1;
-
-			return rgt_chd;
-		}
-
-		void splice(AVL_Node* ptr_nd){
-			/* remove node confirm that the ptr_nd have successor in single side.
-															       Case 1.   ;    Case 2.   */
-			AVL_Node* succsor_nd = (ptr_nd->left != nullptr) ? ptr_nd->left : ptr_nd->right;
-			
-			if(ptr_nd == this->root){  // for remove the root.
-				this->root = succsor_nd;
-			}else{              
-				AVL_Node* par_nd = ptr_nd->parent;
-				if(par_nd->left == ptr_nd)
-					par_nd->left = succsor_nd;
-				else
-					par_nd->right = succsor_nd;
-
-				if(succsor_nd != nullptr) succsor_nd->parent = par_nd;
-			}
-		}
 
 	public:
 		enum Order{  // for the order traversal.
@@ -421,145 +322,15 @@ class AVL_tree{
 		};
 
 		// Constructor -
-		AVL_tree():root{nullptr}, cmp_func{&defau_cmp<T>}{}
-		AVL_tree(short (*def_cmp_func)(T, T)):root{nullptr}, cmp_func{def_cmp_func}{}
+		AVL_tree();
+		AVL_tree(short (*def_cmp_func)(T, T));
 		
 		// Operation - 
-		void insert(T val){
-			// BST insertion operation
-			AVL_Node* prev_nd = find_node(val);  
-			AVL_Node* chd_nd = new AVL_Node(val);
-			add_child(prev_nd, chd_nd);
-			
-			// Balance the tree
-			for(AVL_Node* nd_ptr = prev_nd ; nd_ptr != nullptr ; nd_ptr = nd_ptr->parent){
-				const int& bf = cal_balance(nd_ptr);
-				
-				// Left bias unbalance
-				if( bf > 1 ){		
-					if(val > nd_ptr->left->val)
-						nd_ptr->left = Left_rotate(nd_ptr->left);
+		void insert(T);
 
-					// update parent's pointer
-					AVL_Node* par_ptr = nd_ptr->parent;
-					if(par_ptr != nullptr && par_ptr->right == nd_ptr)
-						par_ptr->right = Right_rotate(nd_ptr);
-					else if(par_ptr != nullptr && par_ptr->left == nd_ptr)
-						par_ptr->left = Right_rotate(nd_ptr);
-					else
-						Right_rotate(nd_ptr);
-					
-				// Right bias unbalance
-				}else if(bf < -1){		
-					if(val < nd_ptr->right->val)
-						nd_ptr->right = Right_rotate(nd_ptr->right);
+		void remove(T);
 
-					// update parent's pointer
-					AVL_Node* par_ptr = nd_ptr->parent;
-					if(par_ptr != nullptr && par_ptr->right == nd_ptr)
-						par_ptr->right = Left_rotate(nd_ptr);
-					else if(par_ptr != nullptr && par_ptr->left == nd_ptr)
-						par_ptr->left = Left_rotate(nd_ptr);
-					else  // nd_ptr equal root 
-						Left_rotate(nd_ptr);
-
-				// else, the sub-tree is already balanced
-				}else{  
-					nd_ptr->height = get_max(get_height(nd_ptr->left), get_height(nd_ptr->right)) + 1;
-				} 
-
-				// finally update the new root pointer 
-				if(nd_ptr->parent == nullptr)
-					this->root = nd_ptr;
-			}
-		}
-
-
-		void remove(T val){
-			// BST remove operation
-			AVL_Node* ptr_nd = find_node(val);
-			if(ptr_nd == nullptr || ptr_nd->val != val){
-				cerr << "ERROR_MESSAGE : The removed node have not found." << endl;
-				return;
-			}
-
-			// Case 1. Single-side is nullptr, then the simple splice is execute.
-			AVL_Node* tmp = ptr_nd->parent;
-			if(ptr_nd->left == nullptr || ptr_nd->right == nullptr){
-				splice(ptr_nd);
-				safe_del_ptr<AVL_Node>(ptr_nd);
-			
-			// Case 2. Both side have node.
-			}else{  
-				AVL_Node* replce_nd = ptr_nd->right;
-				// find the smallest node, which greate then ptr_nd in right sub-tree.
-				while(replce_nd->left != nullptr){replce_nd = replce_nd->left;}
-				ptr_nd->val = replce_nd->val;
-				splice(replce_nd);
-				safe_del_ptr<AVL_Node>(replce_nd);
-			}
-			
-			// early return for root
-			if (this->root == nullptr) 
-    			return;
-
-			// Balance the tree
-			for(AVL_Node* nd_ptr = tmp ; nd_ptr != nullptr ; nd_ptr = nd_ptr->parent){
-				const int& bf = cal_balance(nd_ptr);
-				
-				// Left bias unbalance
-				if( bf > 1 ){		
-					if( cal_balance(nd_ptr->left) >= 0 )
-						nd_ptr->left = Left_rotate(nd_ptr->left);
-
-					// update parent's pointer
-					AVL_Node* par_ptr = nd_ptr->parent;
-					if(par_ptr != nullptr && par_ptr->right == nd_ptr)
-						par_ptr->right = Right_rotate(nd_ptr);
-					else if(par_ptr != nullptr && par_ptr->left == nd_ptr)
-						par_ptr->left = Right_rotate(nd_ptr);
-					else
-						Right_rotate(nd_ptr);
-					
-				// Right bias unbalance
-				}else if(bf < -1){		
-					if( cal_balance(nd_ptr->right) <= 0 )
-						nd_ptr->right = Right_rotate(nd_ptr->right);
-
-					// update parent's pointer
-					AVL_Node* par_ptr = nd_ptr->parent;
-					if(par_ptr != nullptr && par_ptr->right == nd_ptr)
-						par_ptr->right = Left_rotate(nd_ptr);
-					else if(par_ptr != nullptr && par_ptr->left == nd_ptr)
-						par_ptr->left = Left_rotate(nd_ptr);
-					else  // nd_ptr equal root 
-						Left_rotate(nd_ptr);
-
-				// else, the sub-tree is already balanced
-				}else{  
-					nd_ptr->height = get_max(get_height(nd_ptr->left), get_height(nd_ptr->right)) + 1;
-				} 
-
-				// finally update the new root pointer 
-				if(nd_ptr->parent == nullptr)
-					this->root = nd_ptr;
-			}
-
-			
-		}
-
-		void BF_print(){
-			Smart_queue<AVL_Node*> nd_que(this->root);
-			while(!nd_que.is_empty()){
-				AVL_Node* tmp_ptr = nd_que.pop();
-				if(tmp_ptr == nullptr)
-					continue;
-
-				cout << tmp_ptr->val << " ";
-				nd_que.push(tmp_ptr->left);
-				nd_que.push(tmp_ptr->right);
-			}
-		}
+		void BF_print();
 
 };
 
@@ -647,6 +418,6 @@ using CH_Tab = Chained_Hash_Table<T>;
 
 /* TODO : 
 * 1. Hash Table (dict implement).
-* 2. AVL-tree, RB+-tree.
+* 2. RB+-tree.
 * 3. B-tree.
 */
