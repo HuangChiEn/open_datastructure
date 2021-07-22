@@ -51,10 +51,13 @@ template<typename T>
 Smart_array<T>::Smart_array():arr{nullptr}, ptr{0}, siz{1}{}
 
 template<typename T>
-Smart_array<T>::Smart_array(T val):arr{nullptr}, ptr{0}, siz{4}{
-    arr = new T [siz];
-    arr[ptr++] = val;
-}
+Smart_array<T>::Smart_array(uint alloc_siz):arr{nullptr}, ptr{alloc_siz}, siz{alloc_siz}{ arr = new T [siz]; }
+
+template<typename T>
+Smart_array<T>::Smart_array(T val):arr{nullptr}, ptr{1}, siz{4}{ arr = new T [siz]{val}; }
+
+template<typename T>
+Smart_array<T>::Smart_array(const initializer_list<T>& lst):Smart_array(){ for(auto elem : lst) add(elem); }
 
 //  Utility -
 template<typename T>
